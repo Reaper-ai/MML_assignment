@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from experiments import run_all, experiment_1_p_only, experiment_2_pi_pd_pid
-from experiments import experiment_3_comparison, experiment_4_real_world
+from experiments import experiment_3_comparison, experiment_4_real_world, experiment_5_ziegler_nichols
 
 
 def build_config(args: argparse.Namespace) -> dict:
@@ -37,7 +37,7 @@ def main():
     parser.add_argument("--Kp_values", type=float, nargs="+", default=[10, 50, 100, 200, 500],
                         help="Kp values for Exp 1 (default: 10 50 100 200 500)")
     
-    parser.add_argument("--exp", type=int, choices=[1, 2, 3, 4, 0], default=0,
+    parser.add_argument("--exp", type=int, choices=[1, 2, 3, 4, 5, 0], default=0,
                         help="Run specific experiment (0=all, default: 0)")
     
     args = parser.parse_args()
@@ -57,6 +57,8 @@ def main():
         experiment_3_comparison(C)
     elif args.exp == 4:
         experiment_4_real_world(C)
+    elif args.exp == 5:
+        experiment_5_ziegler_nichols(C)
     else:
         run_all(C)
 

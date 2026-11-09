@@ -460,12 +460,282 @@ def run_all(C: Dict) -> Dict[str, Any]:
     exp4 = experiment_4_real_world(C)
     print()
     
+    exp5 = experiment_5_ziegler_nichols(C)
+    print()
+    
     print("=" * 60)
     print("ALL EXPERIMENTS COMPLETE")
     print(f"Data saved to: {DATA_DIR}")
     print(f"Plots saved to: {PLOTS_DIR}")
     print("=" * 60)
     
-    return {"exp1": exp1, "exp2": exp2, "exp3": exp3, "exp4": exp4}
+    return {"exp1": exp1, "exp2": exp2, "exp3": exp3, "exp4": exp4, "exp5": exp5}
+
+
+def experiment_5_ziegler_nichols(C: Dict) -> Dict[str, Any]:
+    """
+    Experiment 5: Ziegler-Nichols tuning.
+    
+    System: 1/(s+1)^3 (third-order lag)
+    1. Find ultimate gain Ku by increasing P until sustained oscillation
+    2. Measure ultimate period Tu
+    3. Apply Z-N recipe table
+    4. Plot result and improve manually
+    """
+    print("Running Experiment 5: Ziegler-Nichols Tuning on 1/(s+1)^3...")
+    
+    # System: G(s) = 1/(s+1)^3
+    # State-space realization: x1' = -x1 + u, x2' = -x2 + x1, x3' = -x3 + x2, y = x3
+    # Or use discrete approximation
+    
+    dt = C["dt"]
+    t_max = 20.0  # Longer for oscillation observation
+    n_steps = int(t_max / dt) + 1
+    time = np.linspace(0, t_max, n_steps)
+    
+    # Step 1: Find ultimate gain Ku using P-only
+    print("  Step 1: Finding ultimate gain Ku (P-only)...")
+    
+    # Search for Ku where sustained oscillation occurs
+    Kp_test_values = np.arange(1.0, 20.0, 0.5)
+    Ku = None
+    Tu = None
+    
+    for Kp_test in Kp_test_values:
+        # Simulate 1/(s+1)^3 with P controller
+        x1 = np.zeros(n_steps)
+        x2 = np.zeros(n_steps)
+        x3 = np.zeros(n_steps)
+        u = np.zeros(n_steps)
+        y = np.zeros(n_steps)
+        target = np.ones(n_steps)
+        
+        for i in range(1, n_steps):
+            err = target[i-1] - x3[i-1]
+            u[i] = Kp_test * err
+            
+            # Discrete 1/(s+1)^3 using forward Euler
+            x1[i] = x1[i-1] + dt * (-x1[i-1] + u[i-1])
+            x2[i] = x2[i-1] + dt * (-x2[i-1] + x1[i-1])
+            x3[i] = x3[i-1] + dt * (-x3[i-1] + x2[i-1])
+            y[i] = x3[i]
+        
+        # Check for sustained oscillation (peaks in steady state)
+        steady_start = int(0.7 * n_steps)
+        y_steady = y[steady_start:]
+        
+        # Find peaks
+        peaks_idx = []
+        for j in range(1, len(y_steady)-1):
+            if y_steady[j] > y_steady[j-1] and y_steady[j] > y_steady[j+1]:
+                peaks_idx.append(j)
+        
+        if len(peaks_idx) >= 3:
+            # Check if amplitude is sustained (not growing/decaying too fast)
+            peak_vals = y_steady[peaks_idx]
+            amp_ratio = peak_vals[-1] / peak_vals[0] if peak_vals[0] != 0 else 0
+            if 0.8 < amp_ratio < 1.2:
+                Ku = Kp_test
+                # Period from peak spacing
+                peak_times = time[steady_start + np.array(peaks_idx)]
+                periods = np.diff(peak_times)
+                Tu = np.mean(periods)
+                print(f"    Found Ku={Ku:.2f}, Tu={Tu:.2f}s")
+                break
+    
+    if Ku is None:
+        # Fallback: use known value for 1/(s+1)^3
+        # Analytical: at oscillation, phase = -180°, so 3*atan(w) = 180° => w = sqrt(3)
+        # |G(jw)| = 1/(w^2+1)^1.5 = 1/8 = 0.125 => Ku = 1/0.125 = 8
+        Ku = 8.0
+        Tu = 2 * np.pi / np.sqrt(3)  # ~3.63s
+        print(f"    Using analytical: Ku={Ku:.2f}, Tu={Tu:.2f}s")
+    
+    # Step 2: Apply Z-N recipe table
+    print("  Step 2: Applying Ziegler-Nichols recipe...")
+    
+    zn_params = {
+        "P":     {"Kp": 0.5 * Ku, "Ki": 0, "Kd": 0},
+        "PI":    {"Kp": 0.45 * Ku, "Ki": 0.54 * Ku / Tu, "Kd": 0},
+        "PID":   {"Kp": 0.6 * Ku, "Ki": 1.2 * Ku / Tu, "Kd": 0.075 * Ku * Tu},
+        "PID_2": {"Kp": 0.6 * Ku, "Ki": 0.5 * Ku / Tu, "Kd": 0.125 * Ku * Tu},  # Some sources use this
+    }
+    
+    for name, params in zn_params.items():
+        print(f"    {name}: Kp={params['Kp']:.3f}, Ki={params['Ki']:.3f}, Kd={params['Kd']:.3f}")
+    
+    # Step 3: Simulate each Z-N tuning
+    results = {}
+    
+    for name, params in zn_params.items():
+        x1 = np.zeros(n_steps)
+        x2 = np.zeros(n_steps)
+        x3 = np.zeros(n_steps)
+        u = np.zeros(n_steps)
+        error = np.zeros(n_steps)
+        integral = 0.0
+        prev_err = 1.0
+        
+        Kp, Ki, Kd = params["Kp"], params["Ki"], params["Kd"]
+        
+        for i in range(1, n_steps):
+            err = 1.0 - x3[i-1]
+            error[i] = err
+            
+            if name == "P":
+                u[i] = Kp * err
+            elif name == "PI":
+                integral += err * dt
+                u[i] = Kp * err + Ki * integral
+            else:  # PID
+                integral += err * dt
+                deriv = (err - prev_err) / dt
+                u[i] = Kp * err + Ki * integral + Kd * deriv
+                prev_err = err
+            
+            x1[i] = x1[i-1] + dt * (-x1[i-1] + u[i-1])
+            x2[i] = x2[i-1] + dt * (-x2[i-1] + x1[i-1])
+            x3[i] = x3[i-1] + dt * (-x3[i-1] + x2[i-1])
+        
+        results[name] = {
+            "time": time,
+            "position": x3,
+            "control": u,
+            "target": np.ones_like(time),
+            "error": error,
+            "params": params
+        }
+    
+    # Step 4: Manual improvement - reduce overshoot
+    print("  Step 3: Manual improvement (reduce Kp, adjust Kd)...")
+    
+    # Improved PID: reduce Kp by 20%, increase Kd slightly
+    improved_params = {
+        "Kp": 0.48 * Ku,
+        "Ki": 1.0 * Ku / Tu,
+        "Kd": 0.1 * Ku * Tu
+    }
+    print(f"    Improved: Kp={improved_params['Kp']:.3f}, Ki={improved_params['Ki']:.3f}, Kd={improved_params['Kd']:.3f}")
+    
+    x1 = np.zeros(n_steps)
+    x2 = np.zeros(n_steps)
+    x3 = np.zeros(n_steps)
+    u = np.zeros(n_steps)
+    error = np.zeros(n_steps)
+    integral = 0.0
+    prev_err = 1.0
+    
+    for i in range(1, n_steps):
+        err = 1.0 - x3[i-1]
+        error[i] = err
+        integral += err * dt
+        deriv = (err - prev_err) / dt
+        u[i] = improved_params["Kp"] * err + improved_params["Ki"] * integral + improved_params["Kd"] * deriv
+        prev_err = err
+        
+        x1[i] = x1[i-1] + dt * (-x1[i-1] + u[i-1])
+        x2[i] = x2[i-1] + dt * (-x2[i-1] + x1[i-1])
+        x3[i] = x3[i-1] + dt * (-x3[i-1] + x2[i-1])
+    
+    results["PID_Improved"] = {
+        "time": time,
+        "position": x3,
+        "control": u,
+        "target": np.ones_like(time),
+        "error": error,
+        "params": improved_params
+    }
+    
+    # Plot results
+    plot_zn_results(results, Ku, Tu, "exp5_zn_tuning.png")
+    
+    # Print manual tuning guide
+    print("\n  Manual Tuning Guide:")
+    print("    1. Set Ki=0, Kd=0. Increase Kp until sustained oscillation (Ku).")
+    print("    2. Measure oscillation period (Tu).")
+    print("    3. Apply Z-N table: P=0.5Ku, PI=0.45Ku/0.54Ku/Tu, PID=0.6Ku/1.2Ku/Tu/0.075Ku*Tu")
+    print("    4. Improve: Reduce Kp 10-20%, increase Kd for damping, retune Ki for SSE.")
+    print(f"    5. For this system: Ku={Ku:.2f}, Tu={Tu:.2f}s")
+    
+    save_data({"results": {k: {kk: vv.tolist() if isinstance(vv, np.ndarray) else vv for kk, vv in v.items()} for k, v in results.items()},
+               "Ku": Ku, "Tu": Tu}, "exp5_zn_tuning.pkl")
+    
+    return {"results": results, "Ku": Ku, "Tu": Tu}
+
+
+def plot_zn_results(results: Dict[str, Dict[str, np.ndarray]], Ku: float, Tu: float, filename: str) -> None:
+    """Plot Ziegler-Nichols tuning results."""
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    
+    colors = {"P": "blue", "PI": "green", "PID": "red", "PID_2": "orange", "PID_Improved": "purple"}
+    linestyles = {"P": "-", "PI": "-", "PID": "-", "PID_2": "--", "PID_Improved": "-."}
+    
+    for name, res in results.items():
+        c = colors.get(name, "black")
+        ls = linestyles.get(name, "-")
+        axes[0, 0].plot(res["time"], res["position"], color=c, label=name, linewidth=1.5, linestyle=ls)
+        axes[0, 1].plot(res["time"], res["control"], color=c, label=name, linewidth=1, linestyle=ls)
+    
+    axes[0, 0].axhline(1.0, color="k", linestyle="--", label="Target")
+    axes[0, 0].set_ylabel("Output")
+    axes[0, 0].set_title(f"Z-N Tuning on 1/(s+1)^3 (Ku={Ku:.1f}, Tu={Tu:.2f}s) - Output")
+    axes[0, 0].legend(fontsize=8)
+    axes[0, 0].grid(True, alpha=0.3)
+    axes[0, 0].set_xlim(0, 20)
+    
+    axes[0, 1].set_ylabel("Control")
+    axes[0, 1].set_xlabel("Time (s)")
+    axes[0, 1].set_title("Control Signal")
+    axes[0, 1].legend(fontsize=8)
+    axes[0, 1].grid(True, alpha=0.3)
+    axes[0, 1].set_xlim(0, 20)
+    
+    # Zoom on first 5s
+    for name, res in results.items():
+        c = colors.get(name, "black")
+        ls = linestyles.get(name, "-")
+        axes[1, 0].plot(res["time"], res["position"], color=c, label=name, linewidth=1.5, linestyle=ls)
+    axes[1, 0].axhline(1.0, color="k", linestyle="--", label="Target")
+    axes[1, 0].set_ylabel("Output")
+    axes[1, 0].set_xlabel("Time (s)")
+    axes[1, 0].set_title("Zoom: First 5s")
+    axes[1, 0].legend(fontsize=8)
+    axes[1, 0].grid(True, alpha=0.3)
+    axes[1, 0].set_xlim(0, 5)
+    
+    # Metrics table
+    axes[1, 1].axis("off")
+    table_data = [["Method", "Kp", "Ki", "Kd", "Overshoot%", "Settle(s)", "SSE"]]
+    for name, res in results.items():
+        m = compute_metrics(res)
+        p = res["params"]
+        table_data.append([
+            name,
+            f"{p['Kp']:.3f}",
+            f"{p['Ki']:.3f}",
+            f"{p['Kd']:.3f}",
+            f"{m['overshoot_pct']:.1f}",
+            f"{m['settling_time']:.1f}" if not np.isnan(m['settling_time']) else "inf",
+            f"{m['steady_state_error']:.4f}"
+        ])
+    
+    table = axes[1, 1].table(cellText=table_data, loc="center", cellLoc="center")
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1, 2)
+    for i in range(len(table_data)):
+        for j in range(len(table_data[0])):
+            cell = table[(i, j)]
+            if i == 0:
+                cell.set_facecolor("#4CAF50")
+                cell.set_text_props(color="white", weight="bold")
+            else:
+                cell.set_facecolor("#f0f0f0" if i % 2 == 0 else "white")
+    
+    plt.tight_layout()
+    plot_path = PLOTS_DIR / filename
+    plt.savefig(plot_path, dpi=150)
+    plt.close()
+    print(f"  Saved plot: {plot_path}")
 
 

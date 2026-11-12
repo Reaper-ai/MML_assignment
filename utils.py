@@ -58,8 +58,14 @@ def compute_metrics(result: Dict[str, np.ndarray]) -> Dict[str, float]:
     max_pos = np.max(position)
     overshoot = ((max_pos - target) / target * 100) if target != 0 else 0.0
     
-    settled = np.where(np.abs(error) <= steady_state_threshold)[0]
-    settling_time = time[settled[0]] if len(settled) > 0 else np.nan
+    # Settling time: last time error exceeds the ±2% band
+    outside = np.where(np.abs(error) > steady_state_threshold)[0]
+    if len(outside) == 0:
+        settling_time = 0.0
+    elif outside[-1] == len(time) - 1:
+        settling_time = np.nan
+    else:
+        settling_time = float(time[outside[-1] + 1])
     
     ss_error = error[-1]
     

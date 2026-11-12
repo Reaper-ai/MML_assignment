@@ -5,7 +5,7 @@ Compact figures with full axis labels and units for PDF embedding.
 
 import matplotlib.pyplot as plt
 import numpy as np
-from utils import PLOTS_DIR, compute_metrics
+from scripts.utils import PLOTS_DIR, compute_metrics
 
 
 def _fmt(val: float, decimals: int = 2) -> str:

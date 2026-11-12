@@ -8,17 +8,17 @@ from typing import Any, Dict, Callable, Optional
 import numpy as np
 import matplotlib.pyplot as plt
 
-from system import Spring
-from controllers import (
+from scripts.system import Spring
+from scripts.controllers import (
     P, PI, PD, PID,
     PID_no_windup, PID_no_kick, PID_filtered, PID_robust_all,
     Clamp, D_filtered_pv
 )
-from plotting import (
+from scripts.plotting import (
     plot_multi, plot_comparison_table,
     plot_windup, plot_noise, plot_kick, plot_zoh_sweep, plot_final_comparison
 )
-from utils import DATA_DIR, PLOTS_DIR, compute_metrics, save_data, load_data
+from scripts.utils import DATA_DIR, PLOTS_DIR, compute_metrics, save_data, load_data
 
 def simulate_system(C: Dict, controller_fn: Callable, controller_args: Dict,
                     target: float = 1.0, add_noise: bool = False,
@@ -255,7 +255,7 @@ def experiment_5_ziegler_nichols(C: Dict) -> Dict[str, Any]:
             
         results[name] = {"time": time, "position": x3, "control": u, "target": np.ones_like(time), "error": error, "params": params}
     
-    from plotting import plot_zn_results
+    from scripts.plotting import plot_zn_results
     plot_zn_results(results, Ku, Tu, "exp5_zn_tuning.png")
     return {"results": results, "Ku": Ku, "Tu": Tu}
 

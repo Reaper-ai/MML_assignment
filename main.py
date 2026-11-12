@@ -10,8 +10,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from experiments import run_all, experiment_1_p_only, experiment_2_pi_pd_pid
-from experiments import experiment_3_comparison, experiment_4_real_world, experiment_5_ziegler_nichols, experiment_6_final_comparison
+from scripts.experiments import run_all, experiment_1_p_only, experiment_2_pi_pd_pid
+from scripts.experiments import experiment_3_comparison, experiment_4_real_world, experiment_5_ziegler_nichols, experiment_6_final_comparison
 
 
 def build_config(args: argparse.Namespace) -> dict:

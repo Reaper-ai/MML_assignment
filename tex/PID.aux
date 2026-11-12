@@ -36,50 +36,53 @@
 \@writefile{toc}{\contentsline {section}{\numberline {6}All Together}{6}{}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Step responses and performance metrics of P, PI, PD, and PID with $K_p=100$, $K_i=50$, $K_d=10$.}}{6}{}\protected@file@percent }
 \newlabel{fig:all}{{6}{6}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Chosen reference gains.}{6}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {7}Real-world Problems}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}(a) Integral windup}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{The problem.}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{The fix: conditional integration (anti-windup).}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}(a) Integral windup}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{The problem.}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{The fix: conditional integration (anti-windup).}{7}{}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Integral windup vs.\ conditional integration anti-windup ($\pm 30$\,N actuator limit, $K_p=100, K_i=120, K_d=10$). Overshoot drops from $10.2\%$ to $0.0\%$.}}{7}{}\protected@file@percent }
 \newlabel{fig:windup}{{7}{7}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.2}(b) Sensor noise and the derivative term}{7}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{The problem.}{7}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{The fix: first-order low-pass filter on D.}{7}{}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Effect of $\pm 1$\,mm sensor noise with $K_d=50$. Filtering the derivative ($\alpha =0.1$) suppresses steady-state control chatter, reducing overall control standard deviation from $10.12$\,N to $7.56$\,N.}}{7}{}\protected@file@percent }
-\newlabel{fig:noise}{{8}{7}{}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}(c) Derivative kick}{8}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{The problem.}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}(c) Derivative kick}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{The problem.}{7}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Effect of $\pm 1$\,mm sensor noise with $K_d=50$. Filtering the derivative ($\alpha =0.1$) suppresses steady-state control chatter, reducing overall control standard deviation from $10.12$\,N to $7.56$\,N.}}{8}{}\protected@file@percent }
+\newlabel{fig:noise}{{8}{8}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{The fix: derivative on measurement (PV).}{8}{}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Target step $1 \to 2$\,m at $t=3$\,s ($K_p=100, K_i=50, K_d=10$). Differentiating on PV cuts the peak control spike from $1120.1$\,N to $120.1$\,N.}}{8}{}\protected@file@percent }
 \newlabel{fig:kick}{{9}{8}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.4}(d) Slow computer update}{8}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{The problem.}{8}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Effect of controller update period $T_s$ ($K_p=100$, $K_i=50$, $K_d=10$).}}{8}{}\protected@file@percent }
-\newlabel{tab:ts}{{4}{8}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{The fix.}{8}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {8}Choosing the Gains}{8}{}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Effect of controller sampling period $T_s = 1, 10, 100, 200, 300$\,ms. Up to $100$\,ms the response remains well-damped, whereas at $300$\,ms zero-order hold phase lag drives the system unstable.}}{9}{}\protected@file@percent }
 \newlabel{fig:zoh}{{10}{9}{}{}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Effect of controller update period $T_s$ ($K_p=100$, $K_i=50$, $K_d=10$).}}{9}{}\protected@file@percent }
+\newlabel{tab:ts}{{4}{9}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Manual tuning step by step}{9}{}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Independent effect of increasing each PID gain.}}{9}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Model-based tuning: grid search on the test system}{9}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Ziegler--Nichols on a second system}{9}{}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Step responses of $1/(s+1)^3$ using Ziegler--Nichols P, PI, PID, and the manually improved PID.}}{10}{}\protected@file@percent }
 \newlabel{fig:zn}{{11}{10}{}{}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Ziegler--Nichols gains and hand-improved PID performance on $G(s) = 1/(s+1)^3$.}}{10}{}\protected@file@percent }
-\newlabel{tab:zn_results}{{6}{10}{}{}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {9}The Code}{10}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Ziegler--Nichols tuning rules (where $K_i = K_p/T_i$ and $K_d = K_p\,T_d$).}}{10}{}\protected@file@percent }
+\newlabel{tab:zn_recipe}{{6}{10}{}{}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Ziegler--Nichols gains and hand-improved PID performance on $G(s) = 1/(s+1)^3$.}}{10}{}\protected@file@percent }
+\newlabel{tab:zn_results}{{7}{10}{}{}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Step-by-step manual PID tuning workflow.}}{11}{}\protected@file@percent }
 \newlabel{fig:tuning}{{12}{11}{}{}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {10}Real Robots and Myths}{11}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}The Code}{11}{}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Basic PID vs.\ Robust PID under simultaneous $\pm 30$\,N limit, $\pm 1$\,mm noise, $1 \to 2$\,m step at $t=5$\,s, and $T_s=50$\,ms update.}}{12}{}\protected@file@percent }
 \newlabel{fig:final}{{13}{12}{}{}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Real-world robotics and control applications of PID.}}{12}{}\protected@file@percent }
-\newlabel{tab:examples}{{7}{12}{}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Real Robots and Myths}{12}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Real-world robotics and control applications of PID.}}{12}{}\protected@file@percent }
+\newlabel{tab:examples}{{8}{12}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {10.1}Common myths about PID}{12}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Myth 1: ``Higher gains always give a better response.''}{12}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Myth 2: ``You always need all three terms.''}{12}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Myth 3: ``The integral term fixes everything.''}{12}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Myth 4: ``PID is the best controller for every problem.''}{12}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Myth 5: ``Once tuned, the gains are good forever.''}{12}{}\protected@file@percent }
-\gdef \@abspage@last{12}
+\@writefile{toc}{\contentsline {paragraph}{Myth 3: ``The integral term fixes everything.''}{13}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Myth 4: ``PID is the best controller for every problem.''}{13}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Myth 5: ``Once tuned, the gains are good forever.''}{13}{}\protected@file@percent }
+\gdef \@abspage@last{13}

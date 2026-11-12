@@ -1,27 +1,32 @@
 # PID Controller Experiments
 
+> **📄 [Full Technical Report](tex/PID.pdf)** — Detailed mathematical analysis, derivations, and experimental results.
+
 This repository contains a comprehensive set of PID controller experiments demonstrating various PID configurations, real-world problems, and solutions.
 
 ## Quick Start
 
 ```bash
-# Install dependencies
-pip install numpy matplotlib
+# Install uv (if not already installed)
+pip install uv
+
+# Install dependencies and sync environment
+uv sync
 
 # Run all experiments
-python3 main.py
+python main.py
 
 # Run specific experiment
-python3 main.py --exp 1    # P-only sweep
-python3 main.py --exp 2    # PI, PD, PID comparison
-python3 main.py --exp 3    # Detailed comparison with metrics table
-python3 main.py --exp 4    # Real-world problems (windup, noise, kick, slow update)
-python3 main.py --exp 5    # Ziegler-Nichols tuning on 1/(s+1)^3
-python3 main.py --exp 6    # Final comparison: Basic PID vs Robust PID
+python main.py --exp 1    # P-only sweep
+python main.py --exp 2    # PI, PD, PID comparison
+python main.py --exp 3    # Detailed comparison with metrics table
+python main.py --exp 4    # Real-world problems (windup, noise, kick, slow update)
+python main.py --exp 5    # Ziegler-Nichols tuning on 1/(s+1)^3
+python main.py --exp 6    # Final comparison: Basic PID vs Robust PID
 
 # Override parameters
-python3 main.py --Kp 200 --Ki 80 --Kd 15 --t_max 10
-python3 main.py --exp 1 --Kp_values 10 50 100 200 500
+python main.py --Kp 200 --Ki 80 --Kd 15 --t_max 10
+python main.py --exp 1 --Kp_values 10 50 100 200 500
 ```
 
 ## Project Structure
@@ -29,13 +34,17 @@ python3 main.py --exp 1 --Kp_values 10 50 100 200 500
 ```
 .
 ├── main.py              # CLI entry point
-├── experiments.py       # 6 experiment implementations
-├── plotting.py          # All matplotlib plotting (horizontal layout)
-├── utils.py             # Shared constants, save/load, metrics
-├── controllers.py       # Clean compositional PID architecture
-├── system.py            # Spring-mass-damper system
+├── scripts/             # All experiment modules
+│   ├── __init__.py
+│   ├── experiments.py   # 6 experiment implementations
+│   ├── plotting.py      # All matplotlib plotting (horizontal layout)
+│   ├── utils.py         # Shared constants, save/load, metrics
+│   ├── controllers.py   # Clean compositional PID architecture
+│   └── system.py        # Spring-mass-damper system
 ├── experiment_data/     # Saved simulation data (.pkl)
-└── experiment_plots/    # Generated plots (.png)
+├── experiment_plots/    # Generated plots (.png)
+├── pyproject.toml
+└── uv.lock
 ```
 
 ## Experiments Overview
@@ -128,10 +137,10 @@ All experiments use fixed random seed (`np.random.seed(0)`) for reproducibility.
 
 ```bash
 # Full reproduction
-python3 main.py
+python main.py
 
 # Specific experiment with custom params
-python3 main.py --exp 4 --Kp 150 --Ki 100 --Kd 20 --t_max 8
+python main.py --exp 4 --Kp 150 --Ki 100 --Kd 20 --t_max 8
 ```
 
 ## System Under Test

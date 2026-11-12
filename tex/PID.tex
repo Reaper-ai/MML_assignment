@@ -378,7 +378,7 @@
 	\begin{equation}
 		K_i \int_0^{\infty} e\, d\tau = k\,r = 20\ \text{N}.
 	\end{equation}
-	With $K_p = 100$ and $K_i = 50$, the error at $t=5$\,s drops from $0.1667$\,m (P only) to $0.0165$\,m and continues decaying toward zero, at the cost of $4.8\%$ overshoot.
+	With $K_p = 100$ and $K_i = 50$, the error at $t=5$\,s drops from $0.1667$\,m (P only) to $0.0165$\,m and continues decaying toward zero, at the cost of $4.8\%$ overshoot see the green PI curve in Figure~\ref{fig:all}.
 	
 	\subsection{Adding D}
 	With P only, the closed-loop characteristic polynomial is $s^2 + 10s + (20+K_p)$, giving damping ratio $\zeta_P = \frac{10}{2\sqrt{20+K_p}}$. Because the derivative term applies a force opposing velocity, it adds directly to the physical damping:
@@ -386,7 +386,7 @@
 		\zeta_{PD} = \frac{10 + K_d}{2\sqrt{20 + K_p}} .
 	\end{equation}
 	For $K_p = 100$, increasing $K_d$ from $0$ to $10$ raises $\zeta$ from $0.456$ to $0.913$, suppressing the transient bounce. Setting $K_d = 2\sqrt{120} - 10 \approx 11.9$ achieves critical damping ($\zeta = 1$). Because $\dot{e}=0$ at rest, D does not alter $e_{ss} = 0.1667$\,m.
-	
+	As shown by the orange PD curve in Figure~\ref{fig:all}, adding derivative action damps out the transient bounce seen in P-only control while settling at the exact same $0.1667$\,m steady-state error.
 	\section{All Together}
 	Figure~\ref{fig:all} compares P, PI, PD, and full PID on the same 1\,m step using baseline gains $K_p = 100$, $K_i = 50$, and $K_d = 10$.
 	
@@ -398,6 +398,10 @@
 	\end{figure}
 	
 	Using these baseline gains, full PID eliminates the $16.7\%$ offset of P/PD (reducing $e_{ss}$ to $0.0116$\,m at $t=5$\,s) while keeping overshoot at $0.0\%$ (compared to $4.8\%$ for PI), though its rise time increases to $0.48$\,s due to derivative braking. Systematic gain tuning to speed up this response is covered in Section~8.
+	
+	
+	\paragraph{Chosen reference gains.}
+	We select $K_p = 100$, $K_i = 50$, and $K_d = 10$ as our baseline controller because it is the only configuration that simultaneously eliminates steady-state offset ($e_{ss} \to 0$) and achieves $0.0\%$ overshoot, avoiding the $16.7\%$ offset of P/PD and the $4.8\%$ overshoot of PI. Further tuning to speed up its $3.79$\,s settling time is explored in Section~8.
 	
 	\section{Real-world Problems}
 	Real actuators saturate, sensors are noisy, setpoints jump abruptly, and microcontrollers run at finite sampling rates. Below we demonstrate each failure mode on our test system and implement its fix.
@@ -460,6 +464,13 @@
 		\label{fig:kick}
 	\end{figure}
 	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.82\linewidth]{../experiment_plots/exp4d_zoh.png}
+		\caption{Effect of controller sampling period $T_s = 1, 10, 100, 200, 300$\,ms. Up to $100$\,ms the response remains well-damped, whereas at $300$\,ms zero-order hold phase lag drives the system unstable.}
+		\label{fig:zoh}
+	\end{figure}
+	
 	\subsection{(d) Slow computer update}
 	\paragraph{The problem.}
 	Holding the control output constant between updates (zero-order hold, ZOH) over a sampling period $T_s$ introduces an effective phase delay of $T_s/2$, eroding damping. Simulating the plant at $1$\,ms while varying the controller update period $T_s$ yields Table~\ref{tab:ts}.
@@ -488,13 +499,7 @@
 	\paragraph{The fix.}
 	Sample at least 10 times faster than the closed-loop bandwidth. Here, keeping $T_s \le 10$\,ms ($100$\,Hz) preserves continuous-time performance with a wide stability margin.
 	
-	\begin{figure}[h]
-		\centering
-		\includegraphics[width=0.82\linewidth]{../experiment_plots/exp4d_zoh.png}
-		\caption{Effect of controller sampling period $T_s = 1, 10, 100, 200, 300$\,ms. Up to $100$\,ms the response remains well-damped, whereas at $300$\,ms zero-order hold phase lag drives the system unstable.}
-		\label{fig:zoh}
-	\end{figure}
-	
+
 	\section{Choosing the Gains}
 	Choosing $K_p$, $K_i$, and $K_d$ is called \emph{tuning}. We can tune either on a mathematical simulation model or directly on physical hardware.
 	
@@ -569,6 +574,25 @@
 	\begin{equation}
 		K_u = 8.0, \qquad \omega_u = \sqrt{3}\ \text{rad/s}, \qquad T_u = \frac{2\pi}{\sqrt{3}} \approx 3.63\ \text{s}.
 	\end{equation}
+	
+	\begin{table}[h]
+		\centering
+		\small
+		\begin{tabular}{@{}lccc@{}}
+			\toprule
+			Controller & $K_p$ & $T_i$ & $T_d$ \\
+			\midrule
+			P   & $0.5\,K_u$  & ---       & --- \\
+			PI  & $0.45\,K_u$ & $T_u/1.2$ & --- \\
+			PID & $0.6\,K_u$  & $T_u/2$   & $T_u/8$ \\
+			\bottomrule
+		\end{tabular}
+		\caption{Ziegler--Nichols tuning rules (where $K_i = K_p/T_i$ and $K_d = K_p\,T_d$).}
+		\label{tab:zn_recipe}
+	\end{table}
+	
+	Applying Table~\ref{tab:zn_recipe} yields aggressive responses with high overshoot (Table~\ref{tab:zn_results} and Figure~\ref{fig:zn}).
+	
 	Applying the standard ZN formulas ($P: 0.5K_u$; $PI: 0.45K_u, T_i=T_u/1.2$; $PID: 0.6K_u, T_i=T_u/2, T_d=T_u/8$) yields aggressive responses with high overshoot (Table~\ref{tab:zn_results} and Figure~\ref{fig:zn}). Following Section~8.1, lowering $K_p$ by $20\%$ ($0.48K_u = 3.84$), reducing $K_i$ ($1.0K_u/T_u = 2.21$), and raising $K_d$ ($0.1K_u T_u = 2.90$) cuts PID overshoot from $54.8\%$ down to $36.3\%$ while maintaining zero steady-state error.
 	
 	\begin{table}[h]
@@ -596,35 +620,36 @@
 	
 	\begin{verbatim}
 		def P(Kp, error):
-		return Kp * error
+				return Kp * error
 		
 		def D_filtered_pv(Kd, pv, previous_pv, dt, alpha, prev_filtered=0.0):
-		derivative = (pv - previous_pv) / dt
-		filtered_derivative = alpha * derivative + (1 - alpha) * prev_filtered
-		return -Kd * filtered_derivative, filtered_derivative
+				derivative = (pv - previous_pv) / dt
+				filtered_derivative = alpha * derivative + (1 - alpha) * prev_filtered
+				return -Kd * filtered_derivative, filtered_derivative
 		
 		def I_anti_windup(Ki, error, dt, integral, min_val, max_val, u_raw):
-		"""Integral term with conditional anti-windup."""
-		# True Anti-Windup: Pause integration if saturated AND error is pushing further into saturation
-		if (u_raw > max_val and error > 0) or (u_raw < min_val and error < 0):
-		new_integral = integral
-		else:
-		new_integral = integral + error * dt
+				"""Integral term with conditional anti-windup."""
+				# True Anti-Windup: Pause integration if saturated AND error is pushing further into saturation
+				if (u_raw > max_val and error > 0) or (u_raw < min_val and error < 0):
+						new_integral = integral
+				else:
+					new_integral = integral + error * dt
 		
-		i_term = Ki * new_integral
-		return i_term, new_integral
+				i_term = Ki * new_integral
+				return i_term, new_integral
 		
-		def PID_robust_all(Kp, Ki, Kd, error, pv, previous_pv, dt, integral, min_val, max_val, alpha=0.1, prev_filtered=0.0):
-		"""
-		Fully robust PID = P + Anti-windup + D_filtered_pv
-		"""
-		p = P(Kp, error)
-		d, new_filtered = D_filtered_pv(Kd, pv, previous_pv, dt, alpha, prev_filtered)
+		def PID_robust_all(Kp, Ki, Kd, error, pv, previous_pv, dt, integral,
+		 min_val, max_val, alpha=0.1, prev_filtered=0.0):
+				"""
+				Fully robust PID = P + Anti-windup + D_filtered_pv
+				"""
+				p = P(Kp, error)
+				d, new_filtered = D_filtered_pv(Kd, pv, previous_pv, dt, alpha, prev_filtered)
+			
+				i_term, new_integral = I_anti_windup(Ki, error, dt, integral, min_val, max_val, p + Ki * integral + d)
+				u_requested = p + i_term + d
 		
-		i_term, new_integral = I_anti_windup(Ki, error, dt, integral, min_val, max_val, p + Ki * integral + d)
-		u_requested = p + i_term + d
-		
-		return u_requested, new_integral, new_filtered
+				return u_requested, new_integral, new_filtered
 	\end{verbatim}
 	
 	Figure~\ref{fig:final} tests \texttt{PID\_robust\_all} against basic PID on the mass--spring--damper plant with all four real-world challenges active simultaneously ($\pm 30$\,N force limit, $\pm 1$\,mm sensor noise, a $1 \to 2$\,m target step at $t=5$\,s, and a slow $T_s=50$\,ms controller update). Note that at $2$\,m the spring requires $k r = 40$\,N, which exceeds the $30$\,N motor limit (capping steady-state position at $1.5$\,m, i.e., $e_{ss} = 0.50$\,m). While basic PID suffers violent saturation banging and derivative spikes at $t=5$\,s, Robust PID eliminates the derivative kick, prevents windup, and reduces control force chatter ($\text{std}$ drops from $5.34$\,N to $5.02$\,N).

@@ -349,7 +349,7 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.78\linewidth]{experiment_plots/exp1_p_only.png}
+		\includegraphics[width=0.78\linewidth]{../experiment_plots/exp1_p_only.png}
 		\caption{P-only step responses for $K_p = 10, 50, 100, 200, 500$\,N/m. Every curve settles below the 1\,m target; larger $K_p$ reduces the steady-state offset at the cost of stronger oscillation.}
 	\end{figure}
 	
@@ -392,7 +392,7 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.82\linewidth]{experiment_plots/exp3_comparison.png}
+		\includegraphics[width=0.82\linewidth]{../experiment_plots/exp3_comparison.png}
 		\caption{Step responses and performance metrics of P, PI, PD, and PID with $K_p=100$, $K_i=50$, $K_d=10$.}
 		\label{fig:all}
 	\end{figure}
@@ -419,7 +419,7 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.82\linewidth]{experiment_plots/exp4a_windup.png}
+		\includegraphics[width=0.82\linewidth]{../experiment_plots/exp4a_windup.png}
 		\caption{Integral windup vs.\ conditional integration anti-windup ($\pm 30$\,N actuator limit, $K_p=100, K_i=120, K_d=10$). Overshoot drops from $10.2\%$ to $0.0\%$.}
 		\label{fig:windup}
 	\end{figure}
@@ -437,7 +437,7 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.82\linewidth]{experiment_plots/exp4b_noise.png}
+		\includegraphics[width=0.82\linewidth]{../experiment_plots/exp4b_noise.png}
 		\caption{Effect of $\pm 1$\,mm sensor noise with $K_d=50$. Filtering the derivative ($\alpha=0.1$) suppresses steady-state control chatter, reducing overall control standard deviation from $10.12$\,N to $7.56$\,N.}
 		\label{fig:noise}
 	\end{figure}
@@ -455,7 +455,7 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.82\linewidth]{experiment_plots/exp4c_kick.png}
+		\includegraphics[width=0.82\linewidth]{../experiment_plots/exp4c_kick.png}
 		\caption{Target step $1 \to 2$\,m at $t=3$\,s ($K_p=100, K_i=50, K_d=10$). Differentiating on PV cuts the peak control spike from $1120.1$\,N to $120.1$\,N.}
 		\label{fig:kick}
 	\end{figure}
@@ -490,7 +490,7 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.82\linewidth]{experiment_plots/exp4d_zoh.png}
+		\includegraphics[width=0.82\linewidth]{../experiment_plots/exp4d_zoh.png}
 		\caption{Effect of controller sampling period $T_s = 1, 10, 100, 200, 300$\,ms. Up to $100$\,ms the response remains well-damped, whereas at $300$\,ms zero-order hold phase lag drives the system unstable.}
 		\label{fig:zoh}
 	\end{figure}
@@ -500,7 +500,7 @@
 	
 	\begin{figure}[t]
 		\centering
-		\includegraphics[width=0.78\linewidth]{experiment_plots/exp5_zn_tuning.png}
+		\includegraphics[width=0.78\linewidth]{../experiment_plots/exp5_zn_tuning.png}
 		\caption{Step responses of $1/(s+1)^3$ using Ziegler--Nichols P, PI, PID, and the manually improved PID.}
 		\label{fig:zn}
 	\end{figure}
@@ -631,7 +631,7 @@
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.82\linewidth]{experiment_plots/exp6_final_comparison.png}
+		\includegraphics[width=0.82\linewidth]{../experiment_plots/exp6_final_comparison.png}
 		\caption{Basic PID vs.\ Robust PID under simultaneous $\pm 30$\,N limit, $\pm 1$\,mm noise, $1 \to 2$\,m step at $t=5$\,s, and $T_s=50$\,ms update.}
 		\label{fig:final}
 	\end{figure}

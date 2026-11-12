@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.10.20)  12 NOV 2026 23:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.10.20)  12 NOV 2026 23:09
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -679,8 +679,8 @@ Package pdftex.def Info: ../experiment_plots/exp6_final_comparison.png  used on
  input line 659.
 (pdftex.def)             Requested size: 408.90697pt x 154.95311pt.
 
-Overfull \hbox (84.0685pt too wide) in alignment at lines 680--680
-[][][][][]
+Underfull \hbox (badness 1661) in paragraph at lines 680--680
+[]|\OT1/cmr/m/n/9 Separate at-ti-tude loops sta-bi-lize flight; D
  []
 
 [12 <../experiment_plots/exp6_final_comparison.png>] [13] (./PID.aux)
@@ -718,7 +718,7 @@ ts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type
 1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
 ic/amsfonts/cm/cmti9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsf
 onts/cm/cmtt10.pfb>
-Output written on PID.pdf (13 pages, 1151104 bytes).
+Output written on PID.pdf (13 pages, 1150831 bytes).
 PDF statistics:
  178 PDF objects out of 1000 (max. 8388607)
  102 compressed objects within 2 object streams

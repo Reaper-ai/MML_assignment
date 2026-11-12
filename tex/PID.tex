@@ -616,7 +616,7 @@
 
 	
 	\section{The Code}
-	Below is the core Python implementation from \texttt{controllers.py}. Actuator saturation (\texttt{Clamp}) is handled inside the plant simulation loop rather than inside the PID function, ensuring clean separation between control logic and hardware physics:
+	Below is the final Python implementation of the PID controller with all the problems in Section 7:
 	
 	\begin{verbatim}
 		def P(Kp, error):
@@ -667,14 +667,14 @@
 	\begin{table}[h]
 		\centering
 		\small
-		\begin{tabularx}{\textwidth}{llllX}
+		\begin{tabularx}{\textwidth}{lllX}
 			\toprule
 			Application & Setpoint / Sensor & Output & How PID helps \\
 			\midrule
-			DC motor speed & Target rpm / encoder & PWM voltage & P accelerates quickly; I eliminates steady speed droop under load. \\ \addlinespace
-			Quadcopter drone & Roll, pitch, yaw / IMU & Rotor thrust & Separate attitude loops stabilize flight; D damps wind-gust wobble. \\ \addlinespace
-			Robot arm joint & Joint angle / encoder & Motor torque & I holds constant torque to counteract gravity at any angle. \\ \addlinespace
-			Line-following robot & Line center / IR array & Wheel speed diff & P steers onto the line; D prevents high-speed zig-zagging. \\ \addlinespace
+			DC motor speed & Target rpm / encoder & PWM voltage & P accelerates quickly; I eliminates steady speed droop under load. \\ 
+			Quadcopter drone & Roll, pitch, yaw / IMU & Rotor thrust & Separate attitude loops stabilize flight; D damps wind-gust wobble. \\ 
+			Robot arm joint & Joint angle / encoder & Motor torque & I holds constant torque to counteract gravity at any angle. \\ 
+			Line-following robot & Line center / IR array & Wheel speed diff & P steers onto the line; D prevents high-speed zig-zagging. \\ 
 			Car cruise control & Target speed / wheel sensor & Throttle & I maintains speed uphill where extra constant force is required. \\
 			\bottomrule
 		\end{tabularx}
@@ -698,6 +698,8 @@
 	\paragraph{Myth 5: ``Once tuned, the gains are good forever.''}
 	\emph{Reality:} Changes in payload mass, battery voltage, or mechanical wear shift plant dynamics, requiring periodic re-tuning or gain scheduling.
 	
+	\medskip
+	\medskip
 	\medskip
 	\noindent\textit{Note on tools used:} Python (NumPy and Matplotlib) was used to simulate the differential equations and generate all figures. An AI assistant was used to help program the plotting code, refactor the codebase and format the LaTeX document.
 	
